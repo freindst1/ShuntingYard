@@ -69,6 +69,7 @@ public class ShuntngYard {
 	//output: the math result of the expression
 	public static int Process(TokenList queue) {
 		//to do
+		int i = 0;
 		return 0;
 	}
 }
