@@ -36,11 +36,30 @@ public class ShuntngYard {
 	//parse a math expression into a linked list
     //input: the math expression as a string
     //parsed result will stored in Token list
+	//1 + 2
 	public static TokenList ParseFromExp(String exp) {
-		TokenList lst = new TokenList();
-		/*
-		 * to do
-		 */
+		TokenList lst = new TokenList(); //lst is a doublylinkedlist, support both queue and stack functions
+		//if c is an operator, we create a node and append to the list
+		//if c is a number, we need to check if the previous char is also a number
+		//8, 1 = 18
+		String curValue = "";
+		for(char c: exp.toCharArray()) {
+			if (Operators.indexOf(c) > -1) { //this is a valid operator
+				if (!curValue.isEmpty()) {
+					Node<String> num = new Node(curValue);
+					lst.Append(num);
+					curValue = "";
+				}
+				Node<String> node = new Node(String.format("%c", c));
+				lst.Append(node);
+			} else if (Numbers.indexOf(c) > -1){ //this a number
+				curValue += c;
+			}
+		}
+		if (curValue.length() != 0) {
+			Node<String> num = new Node(curValue);
+			lst.Append(num);
+		}
 		return lst;
 	}
 	
