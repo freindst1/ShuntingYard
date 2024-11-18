@@ -67,8 +67,9 @@ public class ShuntngYard {
 	public static TokenList BuildFromTokens(TokenList tokenList) {
 		TokenList outputQueue = new TokenList();
 		TokenList opStack = new TokenList();
-		Node<String> token = tokenList.Dequeue();
-		if (token != null) {
+		Node<String> token = tokenList.Head;
+		tokenList.Remove(token);
+		while (token != null) {
 			//we will do the algorithm on this token
 			if (IsNumber(token.Payload)) {
 				outputQueue.Enqueue(token);
@@ -78,21 +79,30 @@ public class ShuntngYard {
 					opStack.Push(token);
 				} else if (rank == 5) { //')
 					Node<String> op = opStack.Peek();
-					while (op.Payload != "(") {
+					while (op != null && op.Payload != "(") {
 						outputQueue.Enqueue(opStack.Pop());
+						op = opStack.Peek();
 					}
 					opStack.Pop();
 				} else {
 					Node<String> op = opStack.Peek();
-					int newRank = getPrecedence(op.Payload);
-					while (newRank > rank) {
-						outputQueue.Enqueue(op);
+					while (op != null) {
+						int newRank = getPrecedence(op.Payload);
+						if (newRank > rank) {
+							outputQueue.Enqueue(opStack.Pop());
+							op = opStack.Peek();
+						} else {
+							break;
+						}
 					}
 					opStack.Push(token);
 				}
 			}
 			//after everything is over
-			token = tokenList.Dequeue();
+			token = tokenList.Head;
+			if (token != null) {
+				tokenList.Remove(token);
+			}
 		}
 		
 		/*
@@ -116,8 +126,36 @@ public class ShuntngYard {
 	//process use the reverse polish format of expression to process the math result
 	//output: the math result of the expression
 	public static int Process(TokenList queue) {
-		//to do
-		int i = 0;
-		return 0;
+		//create a temporary stack for numbers
+		TokenList stack = new TokenList();
+		while (!queue.IsEmpty()) {
+			Node<String> token = queue.Dequeue();
+			if (IsNumber(token.Payload)) {
+				stack.Push(token);
+			} else {
+				Node<String> firstRight = stack.Pop();
+				Node<String> secondLeft = stack.Pop();
+				int result = Math(secondLeft.Payload, firstRight.Payload, token.Payload);
+				Node<String> newNode = new Node<String>(result + "");
+				stack.Push(newNode);
+			}
+		}
+		return Integer.parseInt(stack.Pop().Payload);
+	}
+	
+	public static int Math(String leftNumber, String rightNumber, String Op) {
+		switch (Op) {
+			case "+":
+				return Integer.parseInt(leftNumber) + Integer.parseInt(rightNumber);
+			case "-":
+				return Integer.parseInt(leftNumber) - Integer.parseInt(rightNumber);
+			case "*":
+				return Integer.parseInt(leftNumber) * Integer.parseInt(rightNumber);
+			case "/":
+				return Integer.parseInt(leftNumber) / Integer.parseInt(rightNumber);
+			case "^":
+			default:
+					return 0;
+		}
 	}
 }
